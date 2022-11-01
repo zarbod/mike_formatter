@@ -4,6 +4,7 @@ use std::io::Write;
 use std::fs::OpenOptions;
 
 const MAX_BLANK: u32 = 3;
+const MAX_CHARS: u32 = 100;
 
 fn remove_blank_lines(contents: &mut String) -> bool {
     let mut break_counter: u32 = 0;
@@ -36,6 +37,31 @@ fn remove_blank_lines(contents: &mut String) -> bool {
     return removed;
 }
 
+fn wrap_around(contents: &mut String) -> bool {
+    let mut line_chars: u32 = 0;
+    let mut line_count: u32 = 1;
+    let mut bad_lines: Vec<u32> = Vec::new();
+
+    for c in contents.chars() {
+        line_chars += 1;
+        if line_chars == MAX_CHARS + 1 && c != '\n'{
+            bad_lines.push(line_count);
+        } else if c == '\n' {
+            line_count += 1;
+            line_chars = 0;
+        }
+    }
+
+    if bad_lines.len() > 0 {
+        print!("Character limit exceeded on lines:");
+        for i in &bad_lines {
+            print!(" {i}");
+        }
+        print!("!!!");
+    }
+    return bad_lines.len() > 0;
+}
+
 fn format(file_name: String) {
     if file_name.len() < 6 ||
         !file_name[file_name.len() - 4..file_name.len()].eq("java") {
@@ -45,7 +71,10 @@ fn format(file_name: String) {
 
     let mut contents = fs::read_to_string(&file_name).expect("File not found!");
 
-    if remove_blank_lines(&mut contents) {
+    let changed = remove_blank_lines(&mut contents) ||
+        wrap_around(&mut contents);
+
+    if  changed {
         fs::remove_file(&file_name)
             .expect("Filed deletion failed.");
 
@@ -68,7 +97,9 @@ fn main() {
         print!("Needs one or more files as arguments! For example, mike_formatter example.java");
     } else {
         for i in 1..args.len() {
+            println!("Formatting file: {}\n", &args[i]);
             format(String::from(&args[i]));
+            println!("\n\nDone!\n")
         }
     }
 }
