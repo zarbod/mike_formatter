@@ -6,6 +6,21 @@ use std::fs::OpenOptions;
 const MAX_BLANK: u32 = 3;
 const MAX_CHARS: u32 = 100;
 
+fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() < 1 {
+        print!("Needs one or more files as arguments! For example, mike_formatter example.java");
+    } else {
+        for i in 1..args.len() {
+            println!("Formatting file: {}\n", &args[i]);
+            format(String::from(&args[i]));
+            println!("\n\nDone!\n")
+        }
+    }
+}
+
+
 fn remove_blank_lines(contents: &mut String) -> bool {
     let mut break_counter: u32 = 0;
     let mut pos: usize = 0;
@@ -88,18 +103,4 @@ fn format(file_name: String) {
         write!(file, "{contents}").expect("Couldn't write!");
     }
 
-}
-
-fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() < 1 {
-        print!("Needs one or more files as arguments! For example, mike_formatter example.java");
-    } else {
-        for i in 1..args.len() {
-            println!("Formatting file: {}\n", &args[i]);
-            format(String::from(&args[i]));
-            println!("\n\nDone!\n")
-        }
-    }
 }
