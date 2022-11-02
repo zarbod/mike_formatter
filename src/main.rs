@@ -81,19 +81,18 @@ fn remove_blank_lines(contents: &mut String) -> bool {
 }
 
 fn wrap_around(contents: &mut String) -> bool {
-    let mut line_chars: u32 = 0;
-    let split_chars: HashSet<char> = HashSet::from(['.', ',', '\"', '\\']);
-    let mut line_count: u32 = 1;
-    let mut bad_lines: Vec<u32> = Vec::new();
-
+    let split_chars: HashSet<u8> = HashSet::from(['.' as u8, ',' as u8, '\"' as u8, '\\' as u8,
+                                                  '&' as u8, '|' as u8, ':' as u8, '?' as u8, '(' as u8, ')' as u8]);
+    let mut changed = false;
     let mut lines: Vec<String> = split_by_lines(contents);
-
 
     for i in 0..lines.len() {
         if lines[i].len() as u32 > MAX_CHARS {
+            changed = true;
             let mut new_line: String = String::new();
             let mut j = lines[i].len() - 1;
-            while  lines[i].as_bytes()[j] != ' ' as u8  {
+
+            while !split_chars.contains(&(lines[i].as_bytes()[j])) && j > 0{
                 new_line += &(lines[i].as_bytes()[j] as char).to_string();
                 j -= 1;
             }
@@ -102,7 +101,11 @@ fn wrap_around(contents: &mut String) -> bool {
         }
     }
 
-    return bad_lines.len() > 0;
+    for line in lines {
+        println!("{line}");
+    }
+
+    return changed;
 }
 
 fn split_by_lines(contents: &mut String) -> Vec<String> {
