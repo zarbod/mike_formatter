@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::env;
 use std::fs;
 use std::io::Write;
@@ -20,6 +21,33 @@ fn main() {
     }
 }
 
+fn format(file_name: String) {
+    if file_name.len() < 6 ||
+        !file_name[file_name.len() - 4..file_name.len()].eq("java") {
+        println!("Input a java file!");
+        return;
+    }
+
+    let mut contents = fs::read_to_string(&file_name).expect("File not found!");
+
+    let changed = remove_blank_lines(&mut contents) ||
+        wrap_around(&mut contents);
+
+    if  changed {
+        fs::remove_file(&file_name)
+            .expect("Filed deletion failed.");
+
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .append(false)
+            .open(file_name)
+            .expect("Couldn't open file!");
+
+        write!(file, "{contents}").expect("Couldn't write!");
+    }
+
+}
 
 fn remove_blank_lines(contents: &mut String) -> bool {
     let mut break_counter: u32 = 0;
@@ -54,53 +82,50 @@ fn remove_blank_lines(contents: &mut String) -> bool {
 
 fn wrap_around(contents: &mut String) -> bool {
     let mut line_chars: u32 = 0;
+    let split_chars: HashSet<char> = HashSet::from(['.', ',', '\"', '\\']);
     let mut line_count: u32 = 1;
     let mut bad_lines: Vec<u32> = Vec::new();
 
-    for c in contents.chars() {
-        line_chars += 1;
-        if line_chars == MAX_CHARS + 1 && c != '\n'{
-            bad_lines.push(line_count);
-        } else if c == '\n' {
-            line_count += 1;
-            line_chars = 0;
+    let mut lines: Vec<String> = split_by_lines(contents);
+
+
+    for i in 0..lines.len() {
+        if lines[i].len() as u32 > MAX_CHARS {
+            let mut new_line: String = String::new();
+            let mut j = lines[i].len() - 1;
+            while  lines[i].as_bytes()[j] != ' ' as u8  {
+                new_line += &(lines[i].as_bytes()[j] as char).to_string();
+                j -= 1;
+            }
+
+            lines.insert(i + 1, new_line);
         }
     }
 
-    if bad_lines.len() > 0 {
-        print!("Character limit exceeded on lines:");
-        for i in &bad_lines {
-            print!(" {i}");
-        }
-        print!("!!!");
-    }
     return bad_lines.len() > 0;
 }
 
-fn format(file_name: String) {
-    if file_name.len() < 6 ||
-        !file_name[file_name.len() - 4..file_name.len()].eq("java") {
-        println!("Input a java file!");
-        return;
+fn split_by_lines(contents: &mut String) -> Vec<String> {
+    let mut lines: Vec<String> = Vec::new();
+    let next_lines = line_break_indices(contents);
+    let mut start = 0;
+    for index in next_lines {
+        lines.push(contents[start..index].to_string());
+        start = index + 1;
     }
 
-    let mut contents = fs::read_to_string(&file_name).expect("File not found!");
+    return lines;
+}
 
-    let changed = remove_blank_lines(&mut contents) ||
-        wrap_around(&mut contents);
-
-    if  changed {
-        fs::remove_file(&file_name)
-            .expect("Filed deletion failed.");
-
-        let mut file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .append(false)
-            .open(file_name)
-            .expect("Couldn't open file!");
-
-        write!(file, "{contents}").expect("Couldn't write!");
+fn line_break_indices(contents: &mut String) -> Vec<usize> {
+    let mut indices: Vec<usize> = Vec::new();
+    let mut index: usize = 0;
+    for c in contents.chars() {
+        if c == '\n' {
+            indices.push(index);
+        }
+        index += 1;
     }
 
+    return indices;
 }
