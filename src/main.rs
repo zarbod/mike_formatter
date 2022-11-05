@@ -48,8 +48,23 @@ fn format(file_name: String) {
 }
 
 fn remove_blank_lines(contents: &mut String) -> bool {
-    *contents = remove_dos(contents);
+    *contents = if is_dos(&char_decomposition(contents)) {
+        remove_dos(contents)
+    } else {
+        remove_nix(contents)
+    };
+
     return true;
+}
+
+fn is_dos(chars: &Vec<char>) -> bool {
+    for c in chars {
+        if *c == '\r' {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 fn remove_nix(contents: &String) -> String {
