@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 use std::env;
 use std::fs;
-use std::io::Write;
 use std::fs::OpenOptions;
+use std::io::Write;
 
 const MAX_BLANK: u32 = 3;
 const MAX_CHARS: u32 = 100;
@@ -22,20 +22,19 @@ fn main() {
 }
 
 fn format(file_name: String) {
-    if file_name.len() < 6 ||
-        !file_name[file_name.len() - 4..file_name.len()].eq("java") {
+    if file_name.len() < 6 || !file_name[file_name.len() - 4..file_name.len()].eq("java") {
         println!("Input a java file!");
         return;
     }
 
     let mut contents = fs::read_to_string(&file_name).expect("File not found!");
 
-    let changed = remove_blank_lines(&mut contents) ||
-        wrap_around(&mut contents);
+//     debug_print(&mut contents);
 
-    if  changed {
-        fs::remove_file(&file_name)
-            .expect("Filed deletion failed.");
+    let changed = remove_blank_lines(&mut contents);
+
+    if changed {
+        fs::remove_file(&file_name).expect("Filed deletion failed.");
 
         let mut file = OpenOptions::new()
             .write(true)
@@ -46,43 +45,72 @@ fn format(file_name: String) {
 
         write!(file, "{contents}").expect("Couldn't write!");
     }
-
 }
 
 fn remove_blank_lines(contents: &mut String) -> bool {
-    let mut break_counter: u32 = 0;
-    let mut pos: usize = 0;
-    let mut blank_list = Vec::new();
-    let mut removed = false;
-    for c in contents.chars() {
-        pos += 1;
-        if c == '\n' {
-            break_counter += 1;
-        } else {
-            break_counter = 0;
-        }
-
-        if break_counter >= MAX_BLANK {
-            blank_list.push(pos);
-        }
-    }
-
-    if  blank_list.len() > 0  {
-        removed = true;
-        let mut num_removed = 0;
-        println!("{}", blank_list.len());
-        for i in blank_list {
-            num_removed += 1;
-            contents.remove(i - num_removed);
-        }
-    }
-
-    return removed;
+    *contents = remove_dos(contents);
+    return true;
 }
 
+fn remove_nix(contents: &String) -> String {
+
+    let mut chars = char_decomposition(contents);
+
+    let mut i = 0;
+    let mut count = 0;
+
+    while i < chars.len() {
+        if chars[i] == '\n' {
+            count += 1;
+        } else {
+            count = 0;
+        }
+
+        if count >= MAX_BLANK {
+            chars.remove(i);
+            i -= 1;
+        }
+        i += 1;
+    }
+
+    return char_to_str(&chars);
+}
+
+fn remove_dos(contents: &String) -> String {
+
+    let mut chars = char_decomposition(contents);
+
+    let mut i = 0;
+    let mut count = 0;
+    let mut incr;
+
+    while i < chars.len() - 1 {
+        incr = 1;
+
+        if chars[i] == '\r' && chars[i + 1] == '\n' {
+            count += 1;
+            incr = 2;
+        } else {
+            count = 0;
+        }
+
+        if count >= MAX_BLANK {
+            chars.remove(i);
+            chars.remove(i);
+            incr = 0;
+        }
+        i += incr;
+    }
+
+    return char_to_str(&chars);
+}
+
+/*
 fn wrap_around(contents: &mut String) -> bool {
-    let split_chars: HashSet<u8> = HashSet::from(['.' as u8, ',' as u8, '\"' as u8, '\\' as u8,
-                                                  '&' as u8, '|' as u8, ':' as u8, '?' as u8, '(' as u8, ')' as u8]);
+    let split_chars: HashSet<u8> = HashSet::from([
+        '.' as u8, ',' as u8, '\"' as u8, '\\' as u8, '&' as u8, '|' as u8, ':' as u8, '?' as u8,
+        '(' as u8, ')' as u8,
+    ]);
     let mut changed = false;
     let mut lines: Vec<String> = split_by_lines(contents);
 
@@ -92,43 +120,49 @@ fn wrap_around(contents: &mut String) -> bool {
             let mut new_line: String = String::new();
             let mut j = lines[i].len() - 1;
 
-            while !split_chars.contains(&(lines[i].as_bytes()[j])) && j > 0{
+            while !split_chars.contains(&(lines[i].as_bytes()[j])) && j > 0 {
                 new_line += &(lines[i].as_bytes()[j] as char).to_string();
                 j -= 1;
             }
 
+            println!("{}", &new_line);
             lines.insert(i + 1, new_line);
         }
     }
 
-    for line in lines {
-        println!("{line}");
-    }
-
     return changed;
 }
+*/
 
-fn split_by_lines(contents: &mut String) -> Vec<String> {
-    let mut lines: Vec<String> = Vec::new();
-    let next_lines = line_break_indices(contents);
-    let mut start = 0;
-    for index in next_lines {
-        lines.push(contents[start..index].to_string());
-        start = index + 1;
+fn print_file(chars: &Vec<char>) {
+    for c in chars {
+        if *c == '\n' {
+            print!("\\n");
+        } else if *c == '\r' {
+            print!("\\r");
+        } else {
+            print!("{c}");
+        }
     }
-
-    return lines;
 }
 
-fn line_break_indices(contents: &mut String) -> Vec<usize> {
-    let mut indices: Vec<usize> = Vec::new();
-    let mut index: usize = 0;
-    for c in contents.chars() {
-        if c == '\n' {
-            indices.push(index);
-        }
-        index += 1;
+fn char_to_str(chars: &Vec<char>) -> String {
+
+    let mut ret_str = String::new();
+    for c in chars {
+        ret_str += &c.to_string();
     }
 
-    return indices;
+    return ret_str;
+}
+
+fn char_decomposition(contents: &String) -> Vec<char> {
+
+    let mut chars: Vec<char> = Vec::new();
+
+    for c in contents.chars() {
+        chars.push(c);
+    }
+
+    return chars;
 }
