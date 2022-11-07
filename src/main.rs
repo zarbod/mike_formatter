@@ -48,13 +48,13 @@ fn format(file_name: String) {
 }
 
 fn remove_blank_lines(contents: &mut String) -> bool {
-    *contents = if is_dos(&char_decomposition(contents)) {
+    *contents = if is_dos(&contents.chars().collect()) {
         remove_dos(contents)
     } else {
         remove_nix(contents)
     };
 
-    return true;
+    true
 }
 
 fn is_dos(chars: &Vec<char>) -> bool {
@@ -64,12 +64,12 @@ fn is_dos(chars: &Vec<char>) -> bool {
         }
     }
 
-    return false;
+    false
 }
 
 fn remove_nix(contents: &String) -> String {
 
-    let mut chars = char_decomposition(contents);
+    let chars: &mut Vec<char> = &mut contents.chars().collect();
 
     let mut i = 0;
     let mut count = 0;
@@ -88,12 +88,12 @@ fn remove_nix(contents: &String) -> String {
         i += 1;
     }
 
-    return char_to_str(&chars);
+    char_to_str(&chars)
 }
 
 fn remove_dos(contents: &String) -> String {
 
-    let mut chars = char_decomposition(contents);
+    let chars: &mut Vec<char> = &mut contents.chars().collect();
 
     let mut i = 0;
     let mut count = 0;
@@ -117,7 +117,7 @@ fn remove_dos(contents: &String) -> String {
         i += incr;
     }
 
-    return char_to_str(&chars);
+    char_to_str(&chars)
 }
 
 /*
@@ -162,22 +162,5 @@ fn print_file(chars: &Vec<char>) {
 }
 
 fn char_to_str(chars: &Vec<char>) -> String {
-
-    let mut ret_str = String::new();
-    for c in chars {
-        ret_str += &c.to_string();
-    }
-
-    return ret_str;
-}
-
-fn char_decomposition(contents: &String) -> Vec<char> {
-
-    let mut chars: Vec<char> = Vec::new();
-
-    for c in contents.chars() {
-        chars.push(c);
-    }
-
-    return chars;
+    chars.iter().collect()
 }
