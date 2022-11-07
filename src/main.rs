@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::collections::LinkedList;
 use std::env;
 use std::fs;
 use std::fs::OpenOptions;
@@ -117,6 +118,31 @@ fn remove_dos(contents: &String) -> String {
     }
 
     char_to_str(&chars)
+}
+
+fn wrap_around(contents: &mut Vec<char>) -> bool {
+    let mut last_special: LinkedList<char> = LinkedList::new();
+    let special_chars: HashSet<char> = HashSet::from(['.', ',', '\\', '\"',
+                                                      '&', '|', ':', '(', ')']);
+
+    let mut num_lines = 0;
+    for i in 0..contents.len() {
+        num_lines += 1;
+        if special_chars.contains(&contents[i]) {
+            if last_special.len() == 0 {
+                last_special.push_back(contents[i]);
+            } else {
+                if *last_special.back().unwrap() == '\"'  {
+
+                }
+            }
+        }
+    }
+
+    false
+}
+
+fn line_decomp(contents: &Vec<char>) {
 }
 
 /*
