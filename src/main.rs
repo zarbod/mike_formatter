@@ -110,8 +110,7 @@ fn remove_dos(contents: &String) -> String {
         }
 
         if count >= MAX_BLANK {
-            chars.remove(i);
-            chars.remove(i);
+            chars.drain(i..i+2);
             incr = 0;
         }
         i += incr;
