@@ -6,7 +6,7 @@ use std::fs::OpenOptions;
 use std::io::Write;
 
 const MAX_BLANK: u32 = 3;
-const MAX_CHARS: u32 = 100;
+const MAX_CHARS: usize = 100;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -121,60 +121,71 @@ fn remove_dos(contents: &String) -> String {
 }
 
 fn wrap_around(contents: &mut Vec<char>) -> bool {
-    let mut last_special: LinkedList<char> = LinkedList::new();
     let special_chars: HashSet<char> = HashSet::from(['.', ',', '\\', '\"',
-                                                      '&', '|', ':', '(', ')']);
+                                                      '&', '|', ':', '(', ')', '+']);
+    let lines = line_decomp(contents);
 
-    let mut num_lines = 0;
-    for i in 0..contents.len() {
-        num_lines += 1;
-        if special_chars.contains(&contents[i]) {
-            if last_special.len() == 0 {
-                last_special.push_back(contents[i]);
-            } else {
-                if *last_special.back().unwrap() == '\"'  {
+    for line in 0..lines.len() {
+        let length = lines[line].len();
 
-                }
+        if length <= MAX_CHARS {
+            continue;
+        }
+
+        let mut i = length - 1;
+        let mut in_string = false;
+        let mut new_line: LinkedList<&char> = LinkedList::new();
+        while i > 0 {
+            if i == 100 {
+               if in_string {
+                   new_line.push_front(lines[line][i]);
+                   if **new_line.front().unwrap() != '\"' {
+                       new_line.push_front(&'\"');
+                   }
+                   break;
+               } 
             }
+            if i <= 100 && special_chars.contains(lines[line][i]) {
+
+            } 
+
+            if  *lines[line][i] == '\"' {
+                in_string = if in_string { false } else { true };
+            }
+            new_line.push_front(lines[line][i]);
+            i -= 1;
         }
     }
 
     false
 }
 
-fn line_decomp(contents: &Vec<char>) {
-}
+fn line_decomp(contents: &Vec<char>) -> Vec<Vec<&char>> {
+    let mut lines: Vec<Vec<&char>> = Vec::new();
+    let mut line_index = 0;
 
-/*
-fn wrap_around(contents: &mut String) -> bool {
-    let split_chars: HashSet<u8> = HashSet::from([
-        '.' as u8, ',' as u8, '\"' as u8, '\\' as u8, '&' as u8, '|' as u8, ':' as u8, '?' as u8,
-        '(' as u8, ')' as u8,
-    ]);
-    let mut changed = false;
-    let mut lines: Vec<String> = split_by_lines(contents);
+    let incr = if is_dos(contents) {
+        2
+    } else {
+        1
+    };
 
-    for i in 0..lines.len() {
-        if lines[i].len() as u32 > MAX_CHARS {
-            changed = true;
-            let mut new_line: String = String::new();
-            let mut j = lines[i].len() - 1;
-
-            while !split_chars.contains(&(lines[i].as_bytes()[j])) && j > 0 {
-                new_line += &(lines[i].as_bytes()[j] as char).to_string();
-                j -= 1;
-            }
-
-            println!("{}", &new_line);
-            lines.insert(i + 1, new_line);
+    lines.push(Vec::new());
+    let mut i = 0;
+    while i < contents.len() {
+        if contents[i] == '\n' || contents[i] == '\r' {
+            lines.push(Vec::new());
+            line_index += 1;
+            i += incr
+        } else {
+            lines[line_index].push(&contents[i]);
         }
     }
 
-    return changed;
+    lines
 }
-*/
 
-fn print_file(chars: &Vec<char>) {
+fn _print_file(chars: &Vec<char>) {
     for c in chars {
         if *c == '\n' {
             print!("\\n");
