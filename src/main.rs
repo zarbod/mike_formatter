@@ -151,6 +151,7 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
             }
             if i <= 100 && special_chars.contains(lines[line][i]) {
                 new_line.push_front(lines[line][i]);
+                lines.drain(i..lines.len());
                 break;
             } 
 
@@ -162,12 +163,7 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
         }
 
         indent(&mut new_line, 0);
-        if in_string {
-            lines.insert(line, ll_to_vec(new_line));
-        } else {
-
-        }
-
+        lines.insert(line, ll_to_vec(new_line));
     }
 
     false
