@@ -121,9 +121,9 @@ fn remove_dos(contents: &String) -> String {
 }
 
 fn wrap_around(contents: &mut Vec<char>) -> bool {
-    let special_chars: HashSet<char> = HashSet::from(['.', ',', '\\', '\"',
+    let special_chars: HashSet<char> = HashSet::from(['.', ',', '\\',
                                                       '&', '|', ':', '(', ')', '+']);
-    let lines = line_decomp(contents);
+    let mut lines = line_decomp(contents);
 
     for line in 0..lines.len() {
         let length = lines[line].len();
@@ -136,9 +136,13 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
         let mut in_string = false;
         let mut new_line: LinkedList<&char> = LinkedList::new();
         while i > 0 {
-            if i == 100 {
+            if i == MAX_CHARS {
                if in_string {
-                   new_line.push_front(lines[line][i]);
+                   new_line.push_front(lines[line][MAX_CHARS]);
+                   new_line.push_front(lines[line][MAX_CHARS - 1]);
+                   lines[line][MAX_CHARS] = &'+';
+                   lines[line][MAX_CHARS - 1] = &'\"';
+                   lines.drain(MAX_CHARS + 1..lines.len());
                    if **new_line.front().unwrap() != '\"' {
                        new_line.push_front(&'\"');
                    }
@@ -146,7 +150,8 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
                } 
             }
             if i <= 100 && special_chars.contains(lines[line][i]) {
-
+                new_line.push_front(lines[line][i]);
+                break;
             } 
 
             if  *lines[line][i] == '\"' {
@@ -155,9 +160,29 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
             new_line.push_front(lines[line][i]);
             i -= 1;
         }
+
+        indent(&mut new_line, 0);
+        if in_string {
+            lines.insert(line, ll_to_vec(new_line));
+        } else {
+
+        }
+
     }
 
     false
+}
+
+fn ll_to_vec(line: LinkedList<&char>) -> Vec<&char> {
+    let mut ret: Vec<&char> = Vec::new();
+    for c in line {
+        ret.push(c);
+    }
+    ret
+}
+
+fn indent(line: &mut LinkedList<&char>, indent_level: u8) {
+
 }
 
 fn line_decomp(contents: &Vec<char>) -> Vec<Vec<&char>> {
