@@ -32,7 +32,7 @@ fn format(file_name: String) {
 
 //     debug_print(&mut contents);
 
-    let changed = remove_blank_lines(&mut contents);
+    let changed = remove_blank_lines(&mut contents) || wrap(&mut contents);
 
     if changed {
         fs::remove_file(&file_name).expect("Filed deletion failed.");
@@ -120,19 +120,28 @@ fn remove_dos(contents: &String) -> String {
     char_to_str(&chars)
 }
 
+fn wrap(contents: &mut String) -> bool {
+    let chars: &mut Vec<char> = &mut contents.chars().collect();
+
+    let ret = wrap_around(chars);
+
+    *contents = char_to_str(chars);
+
+    ret
+}
+
 fn wrap_around(contents: &mut Vec<char>) -> bool {
     let special_chars: HashSet<char> = HashSet::from(['.', ',', '\\',
                                                       '&', '|', ':', '(', ')', '+']);
+    let mut changed = false;
     let mut lines = line_decomp(contents);
 
     for line in 0..lines.len() {
-        let length = lines[line].len();
-
-        if length <= MAX_CHARS {
+        if lines[line].len() <= MAX_CHARS {
             continue;
         }
-
-        let mut i = length - 1;
+        changed = true;
+        let mut i = lines[line].len() - 1;
         let mut in_string = false;
         let mut new_line: LinkedList<&char> = LinkedList::new();
         while i > 0 {
@@ -166,7 +175,11 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
         lines.insert(line, ll_to_vec(new_line));
     }
 
-    false
+    if changed {
+        *contents = collect_lines(lines, is_dos(contents));
+    }
+
+    changed
 }
 
 fn ll_to_vec(line: LinkedList<&char>) -> Vec<&char> {
@@ -175,6 +188,18 @@ fn ll_to_vec(line: LinkedList<&char>) -> Vec<&char> {
         ret.push(c);
     }
     ret
+}
+
+fn collect_lines(lines: Vec<Vec<&char>>, dos: bool) -> Vec<char> {
+    let mut contents: Vec<char> = Vec::new();
+    for line in lines {
+        for c in line {
+            contents.push(*c);
+        }
+        if dos { contents.push('\r'); }
+        contents.push('\n');
+    }
+    contents
 }
 
 fn indent(line: &mut LinkedList<&char>, indent_level: u8) {
