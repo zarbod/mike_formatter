@@ -93,7 +93,7 @@ fn remove_nix(contents: &String) -> String {
         i += 1;
     }
 
-    char_to_str(&chars)
+    char_to_str(chars)
 }
 
 fn remove_dos(contents: &String) -> String {
@@ -121,7 +121,7 @@ fn remove_dos(contents: &String) -> String {
         i += incr;
     }
 
-    char_to_str(&chars)
+    char_to_str(chars)
 }
 
 fn wrap(contents: &mut String) -> bool {
@@ -147,30 +147,30 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
         println!("Modifying line number: {line}");
         let mut i = lines[line].len() - 1;
         let mut in_string = false;
-        let mut new_line: LinkedList<&char> = LinkedList::new();
+        let mut new_line: LinkedList<char> = LinkedList::new();
         while i > 0 {
             if i == MAX_CHARS {
                if in_string {
                    new_line.push_front(lines[line][MAX_CHARS]);
                    new_line.push_front(lines[line][MAX_CHARS - 1]);
-                   lines[line][MAX_CHARS] = &'+';
-                   lines[line][MAX_CHARS - 1] = &'\"';
+                   lines[line][MAX_CHARS] = '+';
+                   lines[line][MAX_CHARS - 1] = '\"';
                    let l = lines[line].len();
                    lines[line].drain(MAX_CHARS + 1..l);
-                   if **new_line.front().unwrap() != '\"' {
-                       new_line.push_front(&'\"');
+                   if *new_line.front().unwrap() != '\"' {
+                       new_line.push_front('\"');
                    }
                    break;
                } 
             }
-            if i <= 100 && special_chars.contains(lines[line][i]) {
+            if i <= 100 && special_chars.contains(&lines[line][i]) {
                 new_line.push_front(lines[line][i]);
                 let l = lines[line].len();
                 lines[line].drain(i..l);
                 break;
             } 
 
-            if  *lines[line][i] == '\"' {
+            if  lines[line][i] == '\"' {
                 in_string = if in_string { false } else { true };
             }
             new_line.push_front(lines[line][i]);
@@ -188,19 +188,19 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
     changed
 }
 
-fn ll_to_vec(line: LinkedList<&char>) -> Vec<&char> {
-    let mut ret: Vec<&char> = Vec::new();
+fn ll_to_vec(line: LinkedList<char>) -> Vec<char> {
+    let mut ret: Vec<char> = Vec::new();
     for c in line {
         ret.push(c);
     }
     ret
 }
 
-fn collect_lines(lines: Vec<Vec<&char>>, dos: bool) -> Vec<char> {
+fn collect_lines(lines: Vec<Vec<char>>, dos: bool) -> Vec<char> {
     let mut contents: Vec<char> = Vec::new();
     for line in lines {
         for c in line {
-            contents.push(*c);
+            contents.push(c);
         }
         if dos { contents.push('\r'); }
         contents.push('\n');
@@ -208,10 +208,10 @@ fn collect_lines(lines: Vec<Vec<&char>>, dos: bool) -> Vec<char> {
     contents
 }
 
-fn indent_level(line: &Vec<&char>) -> u8{
+fn indent_level(line: &Vec<char>) -> u8{
     let mut count: u8 = 0;
     for c in line {
-        if **c == ' ' {
+        if *c == ' ' {
             count += 1;
         } else { break; }
     }
@@ -219,16 +219,16 @@ fn indent_level(line: &Vec<&char>) -> u8{
     count / 4
 }
 
-fn indent(line: &mut LinkedList<&char>, indent_level: u8) {
+fn indent(line: &mut LinkedList<char>, indent_level: u8) {
     for _i in 0..(indent_level + 1) {
         for _j in 0..4 {
-            line.push_front(&' ');
+            line.push_front(' ');
         }
     }
 }
 
-fn line_decomp(contents: &Vec<char>) -> Vec<Vec<&char>> {
-    let mut lines: Vec<Vec<&char>> = Vec::new();
+fn line_decomp(contents: &Vec<char>) -> Vec<Vec<char>> {
+    let mut lines: Vec<Vec<char>> = Vec::new();
     let mut line_index = 0;
 
     let incr = if is_dos(contents) {
@@ -245,7 +245,7 @@ fn line_decomp(contents: &Vec<char>) -> Vec<Vec<&char>> {
             line_index += 1;
             i += incr;
         } else {
-            lines[line_index].push(&contents[i]);
+            lines[line_index].push(contents[i]);
         }
         i += 1;
     }
