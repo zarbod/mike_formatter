@@ -32,7 +32,11 @@ fn format(file_name: String) {
 
 //     debug_print(&mut contents);
 
-    let changed = remove_blank_lines(&mut contents) || wrap(&mut contents);
+    let changed = wrap(&mut contents);
+
+    if changed {
+        println!("Changes have been made.");
+    }
 
     if changed {
         fs::remove_file(&file_name).expect("Filed deletion failed.");
@@ -135,12 +139,12 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
                                                       '&', '|', ':', '(', ')', '+']);
     let mut changed = false;
     let mut lines = line_decomp(contents);
-
     for line in 0..lines.len() {
         if lines[line].len() <= MAX_CHARS {
             continue;
         }
         changed = true;
+        println!("Modifying line number: {line}");
         let mut i = lines[line].len() - 1;
         let mut in_string = false;
         let mut new_line: LinkedList<&char> = LinkedList::new();
@@ -151,7 +155,8 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
                    new_line.push_front(lines[line][MAX_CHARS - 1]);
                    lines[line][MAX_CHARS] = &'+';
                    lines[line][MAX_CHARS - 1] = &'\"';
-                   lines.drain(MAX_CHARS + 1..lines.len());
+                   let l = lines[line].len();
+                   lines[line].drain(MAX_CHARS + 1..l);
                    if **new_line.front().unwrap() != '\"' {
                        new_line.push_front(&'\"');
                    }
@@ -160,7 +165,8 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
             }
             if i <= 100 && special_chars.contains(lines[line][i]) {
                 new_line.push_front(lines[line][i]);
-                lines.drain(i..lines.len());
+                let l = lines[line].len();
+                lines[line].drain(i..l);
                 break;
             } 
 
@@ -172,7 +178,7 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
         }
 
         indent(&mut new_line, 0);
-        lines.insert(line, ll_to_vec(new_line));
+        lines.insert(line + 1, ll_to_vec(new_line));
     }
 
     if changed {
@@ -211,9 +217,9 @@ fn line_decomp(contents: &Vec<char>) -> Vec<Vec<&char>> {
     let mut line_index = 0;
 
     let incr = if is_dos(contents) {
-        2
-    } else {
         1
+    } else {
+        0
     };
 
     lines.push(Vec::new());
@@ -222,10 +228,11 @@ fn line_decomp(contents: &Vec<char>) -> Vec<Vec<&char>> {
         if contents[i] == '\n' || contents[i] == '\r' {
             lines.push(Vec::new());
             line_index += 1;
-            i += incr
+            i += incr;
         } else {
             lines[line_index].push(&contents[i]);
         }
+        i += 1;
     }
 
     lines
