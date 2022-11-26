@@ -32,7 +32,7 @@ fn format(file_name: String) {
 
 //     debug_print(&mut contents);
 
-    let changed = wrap(&mut contents);
+    let changed = wrap(&mut contents) | remove_blank_lines(&mut contents);
 
     if changed {
         println!("Changes have been made.");
@@ -135,6 +135,7 @@ fn wrap(contents: &mut String) -> bool {
 }
 
 fn wrap_around(contents: &mut Vec<char>) -> bool {
+    // characters where breaking the line is allowed
     let special_chars: HashSet<char> = HashSet::from(['.', ',', '\\',
                                                       '&', '|', ':', '(', ')', '+', '=']);
     let mut changed = false;
@@ -143,11 +144,12 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
         if lines[line].len() <= MAX_CHARS {
             continue;
         }
+
         changed = true;
-        println!("Modifying line number: {line}");
         let mut i = lines[line].len() - 1;
         let mut in_string = false;
-        let mut new_line: LinkedList<char> = LinkedList::new();
+        let mut new_line: LinkedList<char> = LinkedList::new(); // O(1) push_front
+
         while i > 0 {
             if i == MAX_CHARS {
                if in_string {
@@ -155,18 +157,19 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
                    new_line.push_front(lines[line][MAX_CHARS - 1]);
                    lines[line][MAX_CHARS] = '+';
                    lines[line][MAX_CHARS - 1] = '\"';
-                   let l = lines[line].len();
-                   lines[line].drain(MAX_CHARS + 1..l);
+                   let length = lines[line].len();
+                   lines[line].drain(MAX_CHARS + 1..length);
                    if *new_line.front().unwrap() != '\"' {
                        new_line.push_front('\"');
                    }
                    break;
                } 
             }
+
             if i <= 100 && special_chars.contains(&lines[line][i]) {
                 new_line.push_front(lines[line][i]);
-                let l = lines[line].len();
-                lines[line].drain(i..l);
+                let length = lines[line].len();
+                lines[line].drain(i..length);
                 break;
             } 
 
