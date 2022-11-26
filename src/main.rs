@@ -136,7 +136,7 @@ fn wrap(contents: &mut String) -> bool {
 
 fn wrap_around(contents: &mut Vec<char>) -> bool {
     let special_chars: HashSet<char> = HashSet::from(['.', ',', '\\',
-                                                      '&', '|', ':', '(', ')', '+']);
+                                                      '&', '|', ':', '(', ')', '+', '=']);
     let mut changed = false;
     let mut lines = line_decomp(contents);
     for line in 0..lines.len() {
@@ -177,7 +177,7 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
             i -= 1;
         }
 
-        indent(&mut new_line, 0);
+        indent(&mut new_line, indent_level(&lines[line]));
         lines.insert(line + 1, ll_to_vec(new_line));
     }
 
@@ -208,8 +208,23 @@ fn collect_lines(lines: Vec<Vec<&char>>, dos: bool) -> Vec<char> {
     contents
 }
 
-fn indent(line: &mut LinkedList<&char>, indent_level: u8) {
+fn indent_level(line: &Vec<&char>) -> u8{
+    let mut count: u8 = 0;
+    for c in line {
+        if **c == ' ' {
+            count += 1;
+        } else { break; }
+    }
 
+    count / 4
+}
+
+fn indent(line: &mut LinkedList<&char>, indent_level: u8) {
+    for _i in 0..(indent_level + 1) {
+        for _j in 0..4 {
+            line.push_front(&' ');
+        }
+    }
 }
 
 fn line_decomp(contents: &Vec<char>) -> Vec<Vec<&char>> {
