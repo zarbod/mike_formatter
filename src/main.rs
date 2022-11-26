@@ -174,7 +174,7 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
             } 
 
             if  lines[line][i] == '\"' {
-                in_string = if in_string { false } else { true };
+                in_string = !in_string;
             }
             new_line.push_front(lines[line][i]);
             i -= 1;
