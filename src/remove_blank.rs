@@ -2,13 +2,14 @@ use crate::MAX_BLANK;
 use crate::char_to_str;
 
 pub fn remove_blank_lines(contents: &mut String) -> bool {
+    let old_len = contents.len();
     *contents = if is_dos(&contents.chars().collect()) {
         remove_dos(contents)
     } else {
         remove_nix(contents)
     };
 
-    true
+    old_len != contents.len()
 }
 
 pub fn is_dos(chars: &Vec<char>) -> bool {

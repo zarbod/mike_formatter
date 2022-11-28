@@ -19,47 +19,50 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
                                                       '&', '|', ':', '(', ')', '+', '=']);
     let mut changed = false;
     let mut lines = line_decomp(contents);
-    for line in 0..lines.len() {
-        if lines[line].len() <= MAX_CHARS {
-            continue;
+    let mut line = 0;
+    while line < lines.len() {
+        if lines[line].len() > MAX_CHARS {
+            println!("{}", lines[line][lines[line].len() - 1]);
+            changed = true;
+            let mut i = lines[line].len() - 1;
+            let mut in_string = false;
+            let mut new_line: LinkedList<char> = LinkedList::new(); // O(1) push_front
+
+            while i > 0 {
+                if i == MAX_CHARS - 1{
+                    if in_string {
+                        new_line.push_front(lines[line][MAX_CHARS - 1]);
+                        new_line.push_front(lines[line][MAX_CHARS - 2]);
+                        new_line.push_front(lines[line][MAX_CHARS - 3]);
+                        lines[line][MAX_CHARS - 1] = '+';
+                        lines[line][MAX_CHARS - 2] = ' ';
+                        lines[line][MAX_CHARS - 3] = '\"';
+                        let length = lines[line].len();
+                        lines[line].drain(MAX_CHARS + 1..length);
+                        if *new_line.front().unwrap() != '\"' {
+                            new_line.push_front('\"');
+                        }
+                        break;
+                    }
+                }
+
+                if i <= 100 && special_chars.contains(&lines[line][i]) {
+                    let length = lines[line].len();
+                    lines[line].drain((i + 1)..length);
+                    break;
+                }
+
+                if  lines[line][i] == '\"' {
+                    in_string = !in_string;
+                }
+                new_line.push_front(lines[line][i]);
+                i -= 1;
+            }
+
+            indent(&mut new_line, indent_level(&lines[line]));
+            lines.insert(line + 1, ll_to_vec(new_line));
         }
-
-        changed = true;
-        let mut i = lines[line].len() - 1;
-        let mut in_string = false;
-        let mut new_line: LinkedList<char> = LinkedList::new(); // O(1) push_front
-
-        while i > 0 {
-            if i == MAX_CHARS {
-               if in_string {
-                   new_line.push_front(lines[line][MAX_CHARS]);
-                   new_line.push_front(lines[line][MAX_CHARS - 1]);
-                   lines[line][MAX_CHARS] = '+';
-                   lines[line][MAX_CHARS - 1] = '\"';
-                   let length = lines[line].len();
-                   lines[line].drain(MAX_CHARS + 1..length);
-                   if *new_line.front().unwrap() != '\"' {
-                       new_line.push_front('\"');
-                   }
-                   break;
-               }
-            }
-
-            if i <= 100 && special_chars.contains(&lines[line][i]) {
-                let length = lines[line].len();
-                lines[line].drain((i + 1)..length);
-                break;
-            }
-
-            if  lines[line][i] == '\"' {
-                in_string = !in_string;
-            }
-            new_line.push_front(lines[line][i]);
-            i -= 1;
-        }
-
-        indent(&mut new_line, indent_level(&lines[line]));
-        lines.insert(line + 1, ll_to_vec(new_line));
+        line += 1;
     }
 
     if changed {

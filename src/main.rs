@@ -19,7 +19,7 @@ fn main() {
         for i in 1..args.len() {
             println!("Formatting file: {}\n", &args[i]);
             format(String::from(&args[i]));
-            println!("\n\nDone!\n")
+            println!("\nDone!\n")
         }
     }
 }
@@ -38,6 +38,8 @@ fn format(file_name: String) {
 
     if changed {
         println!("Changes have been made.");
+    } else {
+        println!("No changes were made.");
     }
 
     if changed {
