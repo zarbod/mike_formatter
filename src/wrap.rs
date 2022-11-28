@@ -46,9 +46,8 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
             }
 
             if i <= 100 && special_chars.contains(&lines[line][i]) {
-                new_line.push_front(lines[line][i]);
                 let length = lines[line].len();
-                lines[line].drain(i..length);
+                lines[line].drain((i + 1)..length);
                 break;
             }
 
