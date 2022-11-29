@@ -31,14 +31,14 @@ fn wrap_around(contents: &mut Vec<char>) -> bool {
             while i > 0 {
                 if i == MAX_CHARS - 1{
                     if in_string {
-                        new_line.push_front(lines[line][MAX_CHARS - 1]);
-                        new_line.push_front(lines[line][MAX_CHARS - 2]);
-                        new_line.push_front(lines[line][MAX_CHARS - 3]);
-                        lines[line][MAX_CHARS - 1] = '+';
-                        lines[line][MAX_CHARS - 2] = ' ';
-                        lines[line][MAX_CHARS - 3] = '\"';
+                        new_line.push_front(lines[line][i]);
+                        new_line.push_front(lines[line][i - 1]);
+                        new_line.push_front(lines[line][i - 2]);
+                        lines[line][i] = '+';
+                        lines[line][i - 1] = ' ';
+                        lines[line][i - 2] = '\"';
                         let length = lines[line].len();
-                        lines[line].drain(MAX_CHARS + 1..length);
+                        lines[line].drain(MAX_CHARS..length);
                         if *new_line.front().unwrap() != '\"' {
                             new_line.push_front('\"');
                         }
