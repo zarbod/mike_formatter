@@ -71,3 +71,13 @@ fn _print_file(chars: &Vec<char>) {
 fn char_to_str(chars: &Vec<char>) -> String {
     chars.iter().collect()
 }
+
+pub fn is_dos(chars: &Vec<char>) -> bool {
+    for c in chars {
+        if *c == '\r' {
+            return true;
+        }
+    }
+
+    false
+}

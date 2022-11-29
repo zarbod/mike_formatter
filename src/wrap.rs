@@ -1,5 +1,4 @@
-use crate::{MAX_CHARS, char_to_str};
-use crate::remove_blank::is_dos;
+use crate::{MAX_CHARS, char_to_str, is_dos};
 use std::collections::HashSet;
 use std::collections::LinkedList;
 

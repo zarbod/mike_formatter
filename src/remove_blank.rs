@@ -1,5 +1,4 @@
-use crate::MAX_BLANK;
-use crate::char_to_str;
+use crate::{MAX_BLANK, char_to_str, is_dos};
 
 pub fn remove_blank_lines(contents: &mut String) -> bool {
     let old_len = contents.len();
@@ -10,16 +9,6 @@ pub fn remove_blank_lines(contents: &mut String) -> bool {
     };
 
     old_len != contents.len()
-}
-
-pub fn is_dos(chars: &Vec<char>) -> bool {
-    for c in chars {
-        if *c == '\r' {
-            return true;
-        }
-    }
-
-    false
 }
 
 fn remove_nix(contents: &String) -> String {
@@ -42,6 +31,7 @@ fn remove_nix(contents: &String) -> String {
         }
         i += 1;
     }
+
 
     char_to_str(chars)
 }
