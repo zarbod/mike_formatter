@@ -1,4 +1,5 @@
-use crate::{MAX_CHARS, is_dos};
+use crate::MAX_CHARS;
+use crate::misc::{is_dos, line_decomp};
 use std::collections::HashSet;
 use std::collections::LinkedList;
 
@@ -97,30 +98,4 @@ fn indent(line: &mut LinkedList<char>, indent_level: u8) {
             line.push_front(' ');
         }
     }
-}
-
-fn line_decomp(contents: &Vec<char>) -> Vec<Vec<char>> {
-    let mut lines: Vec<Vec<char>> = Vec::new();
-    let mut line_index = 0;
-
-    let incr = if is_dos(contents) {
-        1
-    } else {
-        0
-    };
-
-    lines.push(Vec::new());
-    let mut i = 0;
-    while i < contents.len() {
-        if contents[i] == '\n' || contents[i] == '\r' {
-            lines.push(Vec::new());
-            line_index += 1;
-            i += incr;
-        } else {
-            lines[line_index].push(contents[i]);
-        }
-        i += 1;
-    }
-
-    lines
 }

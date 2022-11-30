@@ -1,6 +1,7 @@
 mod remove_blank;
 mod wrap;
 mod indent_file;
+mod misc;
 use wrap::wrap_around;
 use remove_blank::remove_blank_lines;
 use std::env;
@@ -32,8 +33,6 @@ fn format(file_name: String) {
     }
 
     let mut contents = fs::read_to_string(&file_name).expect("File not found!");
-
-//     debug_print(&mut contents);
 
     let mut chars: Vec<char> = contents.chars().collect();
     let changed = wrap_around(&mut chars) | remove_blank_lines(&mut chars);
@@ -69,14 +68,4 @@ fn _print_file(chars: &Vec<char>) {
             print!("{c}");
         }
     }
-}
-
-pub fn is_dos(chars: &Vec<char>) -> bool {
-    for c in chars {
-        if *c == '\r' {
-            return true;
-        }
-    }
-
-    false
 }

@@ -1,4 +1,5 @@
-use crate::{MAX_BLANK, is_dos};
+use crate::MAX_BLANK;
+use crate::misc::is_dos;
 
 pub fn remove_blank_lines(chars: &mut Vec<char>) -> bool {
     let old_len = chars.len();
