@@ -11,7 +11,6 @@ pub fn wrap_around(contents: &mut Vec<char>) -> bool {
     let mut line = 0;
     while line < lines.len() {
         if lines[line].len() > MAX_CHARS {
-            println!("{}", lines[line][lines[line].len() - 1]);
             changed = true;
             let mut i = lines[line].len() - 1;
             let mut in_string = false;
