@@ -1,18 +1,8 @@
-use crate::{MAX_CHARS, char_to_str, is_dos};
+use crate::{MAX_CHARS, is_dos};
 use std::collections::HashSet;
 use std::collections::LinkedList;
 
-pub fn wrap(contents: &mut String) -> bool {
-    let chars: &mut Vec<char> = &mut contents.chars().collect();
-
-    let ret = wrap_around(chars);
-
-    *contents = char_to_str(chars);
-
-    ret
-}
-
-fn wrap_around(contents: &mut Vec<char>) -> bool {
+pub fn wrap_around(contents: &mut Vec<char>) -> bool {
     // characters where breaking the line is allowed
     let special_chars: HashSet<char> = HashSet::from(['.', ',', '\\',
                                                       '&', '|', ':', '(', ')', '+', '=']);

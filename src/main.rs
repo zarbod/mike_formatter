@@ -1,6 +1,7 @@
 mod remove_blank;
 mod wrap;
-use wrap::wrap;
+mod indent_file;
+use wrap::wrap_around;
 use remove_blank::remove_blank_lines;
 use std::env;
 use std::fs;
@@ -34,7 +35,9 @@ fn format(file_name: String) {
 
 //     debug_print(&mut contents);
 
-    let changed = wrap(&mut contents) | remove_blank_lines(&mut contents);
+    let mut chars: Vec<char> = contents.chars().collect();
+    let changed = wrap_around(&mut chars) | remove_blank_lines(&mut chars);
+    contents = chars.into_iter().collect();
 
     if changed {
         println!("Changes have been made.");
@@ -66,10 +69,6 @@ fn _print_file(chars: &Vec<char>) {
             print!("{c}");
         }
     }
-}
-
-fn char_to_str(chars: &Vec<char>) -> String {
-    chars.iter().collect()
 }
 
 pub fn is_dos(chars: &Vec<char>) -> bool {

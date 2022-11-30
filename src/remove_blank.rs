@@ -1,20 +1,18 @@
-use crate::{MAX_BLANK, char_to_str, is_dos};
+use crate::{MAX_BLANK, is_dos};
 
-pub fn remove_blank_lines(contents: &mut String) -> bool {
-    let old_len = contents.len();
-    *contents = if is_dos(&contents.chars().collect()) {
-        remove_dos(contents)
+pub fn remove_blank_lines(chars: &mut Vec<char>) -> bool {
+    let old_len = chars.len();
+
+    if is_dos(chars) {
+        remove_dos(chars);
     } else {
-        remove_nix(contents)
-    };
+        remove_nix(chars);
+    }
 
-    old_len != contents.len()
+    old_len != chars.len()
 }
 
-fn remove_nix(contents: &String) -> String {
-
-    let chars: &mut Vec<char> = &mut contents.chars().collect();
-
+fn remove_nix(chars: &mut Vec<char>) {
     let mut i = 0;
     let mut count = 0;
 
@@ -31,15 +29,9 @@ fn remove_nix(contents: &String) -> String {
         }
         i += 1;
     }
-
-
-    char_to_str(chars)
 }
 
-fn remove_dos(contents: &String) -> String {
-
-    let chars: &mut Vec<char> = &mut contents.chars().collect();
-
+fn remove_dos(chars: &mut Vec<char>) {
     let mut i = 0;
     let mut count = 0;
     let mut incr;
@@ -60,6 +52,4 @@ fn remove_dos(contents: &String) -> String {
         }
         i += incr;
     }
-
-    char_to_str(chars)
 }
