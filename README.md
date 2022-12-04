@@ -1,5 +1,5 @@
 # mike_formatter
-Java Autoformatter modelled after the code style guide provided in the CS 314 course at UT Austin. Named after Professor Mike Scott.
+Java Autoformatter modelled after the code style guide provided in the CS 314 course at UT Austin.
 
 Compilation:
 ```sh
