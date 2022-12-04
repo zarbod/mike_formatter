@@ -6,7 +6,7 @@ Compilation:
 git clone https://github.com/zarbod/formatter314/ && cd formatter314
 cargo build --release
 ```
-the binary will be stored in mike_formatter/release
+the binary will be stored in formatter314/release
 
 Usage:
 ```
