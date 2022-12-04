@@ -16,7 +16,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 1 {
-        print!("Needs one or more files as arguments! For example, mike_formatter example.java");
+        print!("Needs one or more files as arguments! For example, formatter314 example.java");
     } else {
         for i in 1..args.len() {
             println!("Formatting file: {}\n", &args[i]);
