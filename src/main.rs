@@ -2,6 +2,7 @@ mod remove_blank;
 mod wrap;
 mod indent_file;
 mod misc;
+mod spacing;
 use wrap::wrap_around;
 use remove_blank::remove_blank_lines;
 use indent_file::indent_file;
