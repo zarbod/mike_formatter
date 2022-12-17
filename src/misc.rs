@@ -33,3 +33,15 @@ pub fn line_decomp(contents: &Vec<char>) -> Vec<Vec<char>> {
 
     lines
 }
+
+pub fn collect_lines(lines: Vec<Vec<char>>, dos: bool) -> Vec<char> {
+    let mut contents: Vec<char> = Vec::new();
+    for line in lines {
+        for c in line {
+            contents.push(c);
+        }
+        if dos { contents.push('\r'); }
+        contents.push('\n');
+    }
+    contents
+}

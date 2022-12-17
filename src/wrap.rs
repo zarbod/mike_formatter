@@ -1,12 +1,11 @@
 use crate::MAX_CHARS;
-use crate::misc::{is_dos, line_decomp};
+use crate::misc::{is_dos, line_decomp, collect_lines};
 use std::collections::HashSet;
 use std::collections::LinkedList;
 
 pub fn wrap_around(contents: &mut Vec<char>) -> bool {
     // characters where breaking the line is allowed
-    let special_chars: HashSet<char> = HashSet::from(['.', ',', '\\',
-                                                      '&', '|', ':', '(', ')', '+', '=']);
+    let special_chars: HashSet<char> = HashSet::from(['.', ',', '\\', '&', '|', ':', '(', ')', '+', '=']);
     let mut changed = false;
     let mut lines = line_decomp(contents);
     let mut line = 0;
@@ -69,19 +68,7 @@ fn ll_to_vec(line: LinkedList<char>) -> Vec<char> {
     ret
 }
 
-fn collect_lines(lines: Vec<Vec<char>>, dos: bool) -> Vec<char> {
-    let mut contents: Vec<char> = Vec::new();
-    for line in lines {
-        for c in line {
-            contents.push(c);
-        }
-        if dos { contents.push('\r'); }
-        contents.push('\n');
-    }
-    contents
-}
-
-fn indent_level(line: &Vec<char>) -> u8{
+fn indent_level(line: &Vec<char>) -> u8 {
     let mut count: u8 = 0;
     for c in line {
         if *c == ' ' {

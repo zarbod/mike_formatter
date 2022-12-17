@@ -4,6 +4,7 @@ mod indent_file;
 mod misc;
 use wrap::wrap_around;
 use remove_blank::remove_blank_lines;
+use indent_file::indent_file;
 use std::env;
 use std::fs;
 use std::fs::OpenOptions;
@@ -35,7 +36,7 @@ fn format(file_name: String) {
     let mut contents = fs::read_to_string(&file_name).expect("File not found!");
 
     let mut chars: Vec<char> = contents.chars().collect();
-    let changed = wrap_around(&mut chars) | remove_blank_lines(&mut chars);
+    let changed = indent_file(&mut chars) | wrap_around(&mut chars) | remove_blank_lines(&mut chars);
     contents = chars.into_iter().collect();
 
     if changed {
