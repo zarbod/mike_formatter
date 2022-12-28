@@ -3,9 +3,11 @@ mod wrap;
 mod indent_file;
 mod misc;
 mod spacing;
+mod lexer;
 use wrap::wrap_around;
 use remove_blank::remove_blank_lines;
 use indent_file::indent_file;
+use lexer::lex;
 use std::env;
 use std::fs;
 use std::fs::OpenOptions;
@@ -38,6 +40,10 @@ fn format(file_name: String) {
 
     let mut chars: Vec<char> = contents.chars().collect();
     let changed = indent_file(&mut chars) | wrap_around(&mut chars) | remove_blank_lines(&mut chars);
+    // let ggvec = lex(&chars);
+    // for (word, token) in ggvec {
+    //     println!("Word: {}, Type: {:?}", word, token);
+    // }
     contents = chars.into_iter().collect();
 
     if changed {
