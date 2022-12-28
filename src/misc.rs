@@ -45,26 +45,3 @@ pub fn collect_lines(lines: Vec<Vec<char>>, dos: bool) -> Vec<char> {
     }
     contents
 }
-
-#[derive(PartialEq, Eq)]
-#[derive(Debug)]
-pub enum TOKEN {
-    PLUS,
-    MINUS,
-    TIMES,
-    BRACER,
-    BRACEL,
-    BRACKR,
-    BRACKL,
-    PARENL,
-    PARENR,
-    COMMA,
-    SEMI,
-    ID,
-    KEYWORD,
-    DOT,
-    NULL,
-    TRUE,
-    FALSE,
-    BLANK
-}

@@ -40,10 +40,10 @@ fn format(file_name: String) {
 
     let mut chars: Vec<char> = contents.chars().collect();
     let changed = indent_file(&mut chars) | wrap_around(&mut chars) | remove_blank_lines(&mut chars);
-    // let ggvec = lex(&chars);
-    // for (word, token) in ggvec {
-    //     println!("Word: {}, Type: {:?}", word, token);
-    // }
+    let ggvec = lex(&chars);
+    for (word, token) in ggvec {
+        println!("Word: {}, Type: {:?}", word, token);
+    }
     contents = chars.into_iter().collect();
 
     if changed {
